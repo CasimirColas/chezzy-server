@@ -149,7 +149,6 @@ function knightMoves(coord: Coord, allies: number[]): number[] {
     allies
   );
 }
-
 function bishopMoves(
   coord: Coord,
   allies: number[],
@@ -181,15 +180,17 @@ function bishopMoves(
           break;
       }
     }
-    // Preventing the check for the origin
-    stageProgress(i);
-    // We want to continue adding moves until we are out of the board
-    while (
-      checkedCoord.x > 8 &&
-      checkedCoord.x <= 0 &&
-      checkedCoord.y > 8 &&
-      checkedCoord.y <= 0
-    ) {
+    for (let j = 0; j < 8; j++) {
+      stageProgress(i);
+      // Exit if the coordinates are out of the board
+      if (
+        checkedCoord.x > 8 &&
+        checkedCoord.x <= 0 &&
+        checkedCoord.y > 8 &&
+        checkedCoord.y <= 0
+      ) {
+        break;
+      }
       // If the current square is an ennemy piece we add it to the available moves and exit the loop
       if (ennemies.includes(getPlace(checkedCoord))) {
         bishopMoves.push(getPlace(checkedCoord));
@@ -201,8 +202,6 @@ function bishopMoves(
       }
       // Add the legal move to the array
       bishopMoves.push(getPlace(checkedCoord));
-      // Set the check for the next square in the current diagonal
-      stageProgress(i);
     }
   }
   return bishopMoves;
@@ -233,15 +232,17 @@ function rookMoves(
           break;
       }
     }
-    // Preventing the check for the origin
-    stageProgress(i);
-    // We want to continue adding moves until we are out of the board
-    while (
-      checkedCoord.x > 8 &&
-      checkedCoord.x <= 0 &&
-      checkedCoord.y > 8 &&
-      checkedCoord.y <= 0
-    ) {
+    for (let j = 0; j < 8; j++) {
+      stageProgress(i);
+      // Exit if the coordinates are out of the board
+      if (
+        checkedCoord.x > 8 &&
+        checkedCoord.x <= 0 &&
+        checkedCoord.y > 8 &&
+        checkedCoord.y <= 0
+      ) {
+        break;
+      }
       // If the current square is an ennemy piece we add it to the available moves and exit the loop
       if (ennemies.includes(getPlace(checkedCoord))) {
         rookMoves.push(getPlace(checkedCoord));
@@ -253,8 +254,6 @@ function rookMoves(
       }
       // Add the legal move to the array
       rookMoves.push(getPlace(checkedCoord));
-      // Set the check for the next square in the current line
-      stageProgress(i);
     }
   }
   return rookMoves;
