@@ -33,10 +33,10 @@ const defaultSetup: ClassicGameInfo = {
       { name: p.Rook, white: true, moves: [] },
     ]),
   events: {
-    whiteCastleQueenSide: false,
-    whiteCastleKingSide: false,
-    blackCastleQueenSide: false,
-    blackCastleKingSide: false,
+    canWhiteCastleQueenSide: true,
+    canWhiteCastleKingSide: true,
+    canBlackCastleQueenSide: true,
+    canBlackCastleKingSide: true,
     jumpPawn: undefined,
   },
 };
@@ -469,10 +469,10 @@ function encodeBoard(game: ClassicGameInfo): string {
   }
   code += " ";
   code += game.whiteToPlay ? "w" : "b";
-  if (game.events.whiteCastleKingSide) code += "K";
-  if (game.events.whiteCastleQueenSide) code += "Q";
-  if (game.events.blackCastleKingSide) code += "k";
-  if (game.events.blackCastleQueenSide) code += "q";
+  if (game.events.canWhiteCastleKingSide) code += "K";
+  if (game.events.canWhiteCastleQueenSide) code += "Q";
+  if (game.events.canBlackCastleKingSide) code += "k";
+  if (game.events.canBlackCastleQueenSide) code += "q";
   code += " ";
   if (game.events.jumpPawn) code += getChessMove(game.events.jumpPawn);
   return code;
@@ -485,10 +485,10 @@ function decodeBoard(code: string): ClassicGameInfo {
     whiteToPlay: decode[1] === "w",
     board: Array(64).fill(null),
     events: {
-      whiteCastleQueenSide: decode[3].includes("Q"),
-      whiteCastleKingSide: decode[3].includes("K"),
-      blackCastleQueenSide: decode[3].includes("q"),
-      blackCastleKingSide: decode[3].includes("k"),
+      canWhiteCastleQueenSide: decode[3].includes("Q"),
+      canWhiteCastleKingSide: decode[3].includes("K"),
+      canBlackCastleQueenSide: decode[3].includes("q"),
+      canBlackCastleKingSide: decode[3].includes("k"),
       jumpPawn: fromChessMoveToPos(decode[4]),
     },
   };

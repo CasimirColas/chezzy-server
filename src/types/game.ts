@@ -24,10 +24,10 @@ type ClassicGameInfo = {
   whiteToPlay: boolean;
   board: ChessBoard;
   events: {
-    whiteCastleQueenSide: boolean;
-    whiteCastleKingSide: boolean;
-    blackCastleQueenSide: boolean;
-    blackCastleKingSide: boolean;
+    canWhiteCastleQueenSide: boolean;
+    canWhiteCastleKingSide: boolean;
+    canBlackCastleQueenSide: boolean;
+    canBlackCastleKingSide: boolean;
     jumpPawn: number | undefined;
   };
 };
