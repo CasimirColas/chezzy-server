@@ -1,4 +1,4 @@
-import type { NamespaceIO, SocketIO } from "@/utils/types.js";
+import type { NamespaceIO, SocketIO } from "@/types/socket.js";
 
 export interface ClassicRoom {
   player1: string | undefined;

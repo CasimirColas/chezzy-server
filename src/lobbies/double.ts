@@ -1,4 +1,4 @@
-import type { NamespaceIO } from "@/utils/types.js";
+import type { NamespaceIO } from "@/types/socket.js";
 
 function doubleLobby(io: NamespaceIO) {
   io.on("connect", (s) => {
