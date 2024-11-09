@@ -29,6 +29,8 @@ type ClassicGameInfo = {
     canBlackCastleQueenSide: boolean;
     canBlackCastleKingSide: boolean;
     jumpPawn: number | undefined;
+    halfMoveClock: number;
+    fullMoves: number;
   };
 };
 

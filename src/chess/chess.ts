@@ -38,6 +38,8 @@ const defaultSetup: ClassicGameInfo = {
     canBlackCastleQueenSide: true,
     canBlackCastleKingSide: true,
     jumpPawn: undefined,
+    halfMoveClock: 0,
+    fullMoves: 1,
   },
 };
 
@@ -422,21 +424,25 @@ function willCheck(
   return danger.includes(kingPos);
 }
 /**
- * Converts a boad into a simplified string
+ * Converts a boad into a simplified string using FEN notation,
+ * read more about it here: https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
  *
- * The rules are taken from the lichess.org board editor and are as follows:
- *
- * - black pieces will be lower case letters r,n,b,q,k
- * - white pieces will be upper case letters R,N,B,Q,K
- * - consecutive empty spaces are represented by a number
- * - every end of line is separated by /
- * - after the board data use a white space
- * - color to play w or b
- * - white space
- * - available castle options for white Q and K
- * - available castle options for black q and k
- * - white space
- * - en passant position in standart chess notation
+ * The rules of FEN notation are as follows:
+ * - Black pieces will be lower case letters r,n,b,q,k
+ * - White pieces will be upper case letters R,N,B,Q,K
+ * - Consecutive empty spaces are represented by a number
+ * - Every end of line is separated by /
+ * - After the board data use a white space
+ * - Color to play w or b
+ * - Ahite space
+ * - Available castle options for white Q and K
+ * - Available castle options for black q and k
+ * - White space
+ * - En passant position in standart chess notation or - if none
+ * - White space
+ * - The number of halfmoves since the last capture or pawn advance, used for the fifty-move rule
+ * - White space
+ * - The number of the full moves. It starts at 1 and is incremented after Black's move
  */
 function encodeBoard(game: ClassicGameInfo): string {
   const board = game.board;
@@ -474,10 +480,15 @@ function encodeBoard(game: ClassicGameInfo): string {
   if (game.events.canBlackCastleKingSide) code += "k";
   if (game.events.canBlackCastleQueenSide) code += "q";
   code += " ";
-  if (game.events.jumpPawn) code += getChessMove(game.events.jumpPawn);
+  code += game.events.jumpPawn ? getChessMove(game.events.jumpPawn) : "-";
+  code += " ";
+  code += game.events.halfMoveClock;
+  code += " ";
+  code += game.events.fullMoves;
   return code;
 }
-// Converts a string into a game state see the rules on converstion
+// Converts a FEN string into a game state see the rules on converstion
+// Read more about FEN here: https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
 function decodeBoard(code: string): ClassicGameInfo {
   const decode = code.split(" ");
   // NOTE: Include safey checks here to make sure the decode string is properly fromated
@@ -485,11 +496,14 @@ function decodeBoard(code: string): ClassicGameInfo {
     whiteToPlay: decode[1] === "w",
     board: Array(64).fill(null),
     events: {
-      canWhiteCastleQueenSide: decode[3].includes("Q"),
-      canWhiteCastleKingSide: decode[3].includes("K"),
-      canBlackCastleQueenSide: decode[3].includes("q"),
-      canBlackCastleKingSide: decode[3].includes("k"),
-      jumpPawn: fromChessMoveToPos(decode[4]),
+      canWhiteCastleQueenSide: decode[2].includes("Q"),
+      canWhiteCastleKingSide: decode[2].includes("K"),
+      canBlackCastleQueenSide: decode[2].includes("q"),
+      canBlackCastleKingSide: decode[2].includes("k"),
+      jumpPawn:
+        decode[3].charAt(0) === "-" ? undefined : fromChessMoveToPos(decode[3]),
+      halfMoveClock: parseInt(decode[4]),
+      fullMoves: parseInt(decode[5]),
     },
   };
   const gamecode = decode[0].replaceAll("/", "");
