@@ -32,15 +32,13 @@ const defaultSetup: ClassicGameInfo = {
       { name: p.Knight, white: true, moves: [] },
       { name: p.Rook, white: true, moves: [] },
     ]),
-  events: {
-    canWhiteCastleQueenSide: true,
-    canWhiteCastleKingSide: true,
-    canBlackCastleQueenSide: true,
-    canBlackCastleKingSide: true,
-    jumpPawn: undefined,
-    halfMoveClock: 0,
-    fullMoves: 1,
-  },
+  canWhiteCastleQueenSide: true,
+  canWhiteCastleKingSide: true,
+  canBlackCastleQueenSide: true,
+  canBlackCastleKingSide: true,
+  passantPawn: undefined,
+  halfMoveClock: 0,
+  fullMoves: 1,
 };
 
 type Coord = {
@@ -48,7 +46,7 @@ type Coord = {
   y: number;
 };
 
-function getPieceLetter(piece: PieceName) {
+export function getPieceLetter(piece: PieceName) {
   switch (piece) {
     case PieceName.King:
       return "k";
@@ -64,7 +62,7 @@ function getPieceLetter(piece: PieceName) {
       return "p";
   }
 }
-function getLetterPiece(letter: string) {
+export function getLetterPiece(letter: string) {
   if (letter.length > 1) {
     throw new Error("This is not a letter");
   }
@@ -83,12 +81,12 @@ function getLetterPiece(letter: string) {
       return PieceName.Pawn;
   }
 }
-function getChessMove(pos: number) {
+export function getChessMove(pos: number) {
   const letters = ["a", "b", "c", "d", "e", "f", "g", "h"];
   const coord = getXY(pos);
   return letters[coord.x] + (coord.y + 1);
 }
-function fromChessMoveToPos(move: string) {
+export function fromChessMoveToPos(move: string) {
   if (move.length > 2) {
     throw new Error("Incorrect move format (more than 2 chars)");
   }
@@ -103,7 +101,7 @@ function fromChessMoveToPos(move: string) {
   }
   return getPlace({ x, y });
 }
-function getPieces(board: ChessBoard, white: boolean) {
+export function getPieces(board: ChessBoard, white: boolean) {
   let pieces = [];
   for (let i = 0; i < board.length; i++) {
     if (board[i]?.white === white) {
@@ -112,31 +110,31 @@ function getPieces(board: ChessBoard, white: boolean) {
   }
   return pieces;
 }
-function getX(pos: number) {
+export function getX(pos: number) {
   return pos % 8;
 }
-function getY(pos: number) {
+export function getY(pos: number) {
   return (pos - (pos % 8)) / 8;
 }
-function getXY(pos: number) {
+export function getXY(pos: number) {
   return { x: pos % 8, y: (pos - (pos % 8)) / 8 };
 }
-function getPlace(coord: Coord) {
+export function getPlace(coord: Coord) {
   return coord.y * 8 + coord.x;
 }
-function getPlaces(coords: Coord[]) {
+export function getPlaces(coords: Coord[]) {
   return coords.map((e) => e.y * 8 + e.x);
 }
-function boundCoords(coords: Coord[]) {
+export function boundCoords(coords: Coord[]) {
   return coords.filter((e) => e.x >= 0 && e.x <= 7 && e.y >= 0 && e.y <= 7);
 }
-function boundPlaces(coords: Coord[]) {
+export function boundPlaces(coords: Coord[]) {
   return getPlaces(boundCoords(coords));
 }
-function noTeamKill(boundPlaces: number[], allies: number[]) {
+export function noTeamKill(boundPlaces: number[], allies: number[]) {
   return boundPlaces.filter((e) => !allies.includes(e));
 }
-function knightMoves(coord: Coord, allies: number[]): number[] {
+export function knightMoves(coord: Coord, allies: number[]): number[] {
   return noTeamKill(
     boundPlaces([
       { x: coord.x - 1, y: coord.y - 2 },
@@ -151,7 +149,7 @@ function knightMoves(coord: Coord, allies: number[]): number[] {
     allies
   );
 }
-function bishopMoves(
+export function bishopMoves(
   coord: Coord,
   allies: number[],
   ennemies: number[]
@@ -208,7 +206,7 @@ function bishopMoves(
   }
   return bishopMoves;
 }
-function rookMoves(
+export function rookMoves(
   coord: Coord,
   allies: number[],
   ennemies: number[]
@@ -260,7 +258,7 @@ function rookMoves(
   }
   return rookMoves;
 }
-function queenMoves(
+export function queenMoves(
   coord: Coord,
   allies: number[],
   ennemies: number[]
@@ -269,12 +267,12 @@ function queenMoves(
     rookMoves(coord, allies, ennemies)
   );
 }
-function pawnMoves(
+export function pawnMoves(
   coord: Coord,
   allies: number[],
   ennemies: number[],
   white: boolean,
-  jumpPawn: number | null
+  passantPawn: number | undefined
 ): number[] {
   let pawnMoves = [];
   const pieces = allies.concat(ennemies);
@@ -304,14 +302,14 @@ function pawnMoves(
   }
   // Can the pawn en passant
   if (
-    jumpPawn &&
-    (getX(jumpPawn) + 1 === coord.x || getX(jumpPawn) - 1 === coord.x)
+    passantPawn &&
+    (getX(passantPawn) + 1 === coord.x || getX(passantPawn) - 1 === coord.x)
   ) {
-    pawnMoves.push(getPlace({ x: getX(jumpPawn), y: coord.y + direction }));
+    pawnMoves.push(getPlace({ x: getX(passantPawn), y: coord.y + direction }));
   }
   return pawnMoves;
 }
-function kingMoves(
+export function kingMoves(
   coord: Coord,
   allies: number[],
   canCastleQueenSide: boolean,
@@ -342,7 +340,7 @@ function kingMoves(
   return kingMoves;
 }
 // This function determines where the king cannot go
-function dangerArea(white: boolean, board: ChessBoard): number[] {
+export function dangerArea(white: boolean, board: ChessBoard): number[] {
   let dangerArea: number[] = [];
   // Getting the list of all ennemy pieces that can be a threat
   const ennemyPieces = board
@@ -406,7 +404,7 @@ function dangerArea(white: boolean, board: ChessBoard): number[] {
   return Array.from(new Set(dangerArea));
 }
 // This function determines weather a move puts the king in check
-function willCheck(
+export function willCheck(
   white: boolean,
   board: ChessBoard,
   pieceStart: number,
@@ -425,7 +423,7 @@ function willCheck(
 }
 /**
  * Converts a boad into a simplified string using FEN notation,
- * read more about it here: https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
+ * Read more about it here: https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
  *
  * The rules of FEN notation are as follows:
  * - Black pieces will be lower case letters r,n,b,q,k
@@ -444,8 +442,7 @@ function willCheck(
  * - White space
  * - The number of the full moves. It starts at 1 and is incremented after Black's move
  */
-function encodeBoard(game: ClassicGameInfo): string {
-  const board = game.board;
+export function encodePosition(board: ChessBoard): string {
   let code = "";
   let consecutiveEmpty = 0;
   for (let i = 0; i < board.length; i++) {
@@ -473,38 +470,41 @@ function encodeBoard(game: ClassicGameInfo): string {
       code += "/";
     }
   }
+  return code;
+}
+export function encodeBoard(game: ClassicGameInfo): string {
+  const board = game.board;
+  let code = encodePosition(board);
   code += " ";
   code += game.whiteToPlay ? "w" : "b";
-  if (game.events.canWhiteCastleKingSide) code += "K";
-  if (game.events.canWhiteCastleQueenSide) code += "Q";
-  if (game.events.canBlackCastleKingSide) code += "k";
-  if (game.events.canBlackCastleQueenSide) code += "q";
+  if (game.canWhiteCastleKingSide) code += "K";
+  if (game.canWhiteCastleQueenSide) code += "Q";
+  if (game.canBlackCastleKingSide) code += "k";
+  if (game.canBlackCastleQueenSide) code += "q";
   code += " ";
-  code += game.events.jumpPawn ? getChessMove(game.events.jumpPawn) : "-";
+  code += game.passantPawn ? getChessMove(game.passantPawn) : "-";
   code += " ";
-  code += game.events.halfMoveClock;
+  code += game.halfMoveClock;
   code += " ";
-  code += game.events.fullMoves;
+  code += game.fullMoves;
   return code;
 }
 // Converts a FEN string into a game state see the rules on converstion
 // Read more about FEN here: https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
-function decodeBoard(code: string): ClassicGameInfo {
+export function decodeBoard(code: string): ClassicGameInfo {
   const decode = code.split(" ");
   // NOTE: Include safey checks here to make sure the decode string is properly fromated
   let game: ClassicGameInfo = {
     whiteToPlay: decode[1] === "w",
     board: Array(64).fill(null),
-    events: {
-      canWhiteCastleQueenSide: decode[2].includes("Q"),
-      canWhiteCastleKingSide: decode[2].includes("K"),
-      canBlackCastleQueenSide: decode[2].includes("q"),
-      canBlackCastleKingSide: decode[2].includes("k"),
-      jumpPawn:
-        decode[3].charAt(0) === "-" ? undefined : fromChessMoveToPos(decode[3]),
-      halfMoveClock: parseInt(decode[4]),
-      fullMoves: parseInt(decode[5]),
-    },
+    canWhiteCastleQueenSide: decode[2].includes("Q"),
+    canWhiteCastleKingSide: decode[2].includes("K"),
+    canBlackCastleQueenSide: decode[2].includes("q"),
+    canBlackCastleKingSide: decode[2].includes("k"),
+    passantPawn:
+      decode[3].charAt(0) === "-" ? undefined : fromChessMoveToPos(decode[3]),
+    halfMoveClock: parseInt(decode[4]),
+    fullMoves: parseInt(decode[5]),
   };
   const gamecode = decode[0].replaceAll("/", "");
   // The head represents the position of the board we are filling

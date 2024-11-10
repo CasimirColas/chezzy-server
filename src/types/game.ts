@@ -23,16 +23,14 @@ type ChessBoard = (ChessPiece | null)[];
 type ClassicGameInfo = {
   whiteToPlay: boolean;
   board: ChessBoard;
-  events: {
-    canWhiteCastleQueenSide: boolean;
-    canWhiteCastleKingSide: boolean;
-    canBlackCastleQueenSide: boolean;
-    canBlackCastleKingSide: boolean;
-    jumpPawn: number | undefined;
-    halfMoveClock: number;
-    fullMoves: number;
-  };
+  canWhiteCastleQueenSide: boolean;
+  canWhiteCastleKingSide: boolean;
+  canBlackCastleQueenSide: boolean;
+  canBlackCastleKingSide: boolean;
+  passantPawn: number | undefined;
+  halfMoveClock: number;
+  fullMoves: number;
 };
 
-export type { ClassicGameInfo, ChessBoard };
+export type { ClassicGameInfo, ChessBoard, ChessPiece };
 export { PieceName };
