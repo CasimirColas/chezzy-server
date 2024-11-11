@@ -223,10 +223,10 @@ export function rookMoves(
         case 1:
           checkedCoord.y++;
           break;
-        case 0:
+        case 2:
           checkedCoord.x--;
           break;
-        case 1:
+        case 3:
           checkedCoord.y--;
           break;
       }
