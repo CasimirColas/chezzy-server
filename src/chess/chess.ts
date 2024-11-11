@@ -3,34 +3,33 @@ import {
   type ChessBoard,
   type ClassicGameInfo,
 } from "@/types/game.js";
-import { PieceName as p } from "@/types/game.js";
 
 export { defaultSetup };
 
 const defaultSetup: ClassicGameInfo = {
   whiteToPlay: true,
   board: [
-    { name: p.Rook, white: false, moves: [] },
-    { name: p.Knight, white: false, moves: [] },
-    { name: p.Bishop, white: false, moves: [] },
-    { name: p.Queen, white: false, moves: [] },
-    { name: p.King, white: false, moves: [] },
-    { name: p.Bishop, white: false, moves: [] },
-    { name: p.Knight, white: false, moves: [] },
-    { name: p.Rook, white: false, moves: [] },
+    { name: PieceName.Rook, white: false, moves: [] },
+    { name: PieceName.Knight, white: false, moves: [] },
+    { name: PieceName.Bishop, white: false, moves: [] },
+    { name: PieceName.Queen, white: false, moves: [] },
+    { name: PieceName.King, white: false, moves: [] },
+    { name: PieceName.Bishop, white: false, moves: [] },
+    { name: PieceName.Knight, white: false, moves: [] },
+    { name: PieceName.Rook, white: false, moves: [] },
   ]
-    .concat(Array(8).fill({ name: p.Pawn, white: false, moves: [] }))
+    .concat(Array(8).fill({ name: PieceName.Pawn, white: false, moves: [] }))
     .concat(Array(32).fill(null))
-    .concat(Array(8).fill({ name: p.Pawn, white: true, moves: [] }))
+    .concat(Array(8).fill({ name: PieceName.Pawn, white: true, moves: [] }))
     .concat([
-      { name: p.Rook, white: true, moves: [] },
-      { name: p.Knight, white: true, moves: [] },
-      { name: p.Bishop, white: true, moves: [] },
-      { name: p.Queen, white: true, moves: [] },
-      { name: p.King, white: true, moves: [] },
-      { name: p.Bishop, white: true, moves: [] },
-      { name: p.Knight, white: true, moves: [] },
-      { name: p.Rook, white: true, moves: [] },
+      { name: PieceName.Rook, white: true, moves: [] },
+      { name: PieceName.Knight, white: true, moves: [] },
+      { name: PieceName.Bishop, white: true, moves: [] },
+      { name: PieceName.Queen, white: true, moves: [] },
+      { name: PieceName.King, white: true, moves: [] },
+      { name: PieceName.Bishop, white: true, moves: [] },
+      { name: PieceName.Knight, white: true, moves: [] },
+      { name: PieceName.Rook, white: true, moves: [] },
     ]),
   canWhiteCastleQueenSide: true,
   canWhiteCastleKingSide: true,
