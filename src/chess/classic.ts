@@ -277,6 +277,7 @@ class ClassicGameEngine {
         case PieceName.King:
           pieceMoves = kingMoves(
             pieceCoord,
+            this.game.whiteToPlay,
             myPieces,
             canCastleQueenSide,
             canCastleKingSide,
