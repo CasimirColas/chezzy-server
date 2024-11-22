@@ -106,40 +106,40 @@ describe("Chess Utility Functions", () => {
         expect(JSON.stringify(game.board)).toEqual(
           JSON.stringify(c.defaultSetup.board)
         );
-        expect(game.whiteToPlay).toBe(true);
-        expect(game.canWhiteCastleKingSide).toBe(true);
+        expect(game.whiteToPlay).toEqual(true);
+        expect(game.canWhiteCastleKingSide).toEqual(true);
       });
       test("should recreate the testing position", () => {
         const game = c.decodeBoard(itsFen);
         expect(JSON.stringify(game.board)).toEqual(
           JSON.stringify([...testingBoard])
         );
-        expect(game.whiteToPlay).toBe(false);
-        expect(game.canWhiteCastleKingSide).toBe(false);
-        expect(game.passantPawn).toBe(undefined);
+        expect(game.whiteToPlay).toEqual(false);
+        expect(game.canWhiteCastleKingSide).toEqual(false);
+        expect(game.passantPawn).toEqual(undefined);
       });
     });
   });
 
   describe("getPieceLetter", () => {
     test("should return correct lowercase letter for each piece", () => {
-      expect(c.getPieceLetter(PieceName.King)).toBe("k");
-      expect(c.getPieceLetter(PieceName.Queen)).toBe("q");
-      expect(c.getPieceLetter(PieceName.Rook)).toBe("r");
-      expect(c.getPieceLetter(PieceName.Bishop)).toBe("b");
-      expect(c.getPieceLetter(PieceName.Knight)).toBe("n");
-      expect(c.getPieceLetter(PieceName.Pawn)).toBe("p");
+      expect(c.getPieceLetter(PieceName.King)).toEqual("k");
+      expect(c.getPieceLetter(PieceName.Queen)).toEqual("q");
+      expect(c.getPieceLetter(PieceName.Rook)).toEqual("r");
+      expect(c.getPieceLetter(PieceName.Bishop)).toEqual("b");
+      expect(c.getPieceLetter(PieceName.Knight)).toEqual("n");
+      expect(c.getPieceLetter(PieceName.Pawn)).toEqual("p");
     });
   });
 
   describe("getLetterPiece", () => {
     test("should return correct PieceName for each letter", () => {
-      expect(c.getLetterPiece("k")).toBe(PieceName.King);
-      expect(c.getLetterPiece("q")).toBe(PieceName.Queen);
-      expect(c.getLetterPiece("r")).toBe(PieceName.Rook);
-      expect(c.getLetterPiece("b")).toBe(PieceName.Bishop);
-      expect(c.getLetterPiece("n")).toBe(PieceName.Knight);
-      expect(c.getLetterPiece("p")).toBe(PieceName.Pawn);
+      expect(c.getLetterPiece("k")).toEqual(PieceName.King);
+      expect(c.getLetterPiece("q")).toEqual(PieceName.Queen);
+      expect(c.getLetterPiece("r")).toEqual(PieceName.Rook);
+      expect(c.getLetterPiece("b")).toEqual(PieceName.Bishop);
+      expect(c.getLetterPiece("n")).toEqual(PieceName.Knight);
+      expect(c.getLetterPiece("p")).toEqual(PieceName.Pawn);
     });
     test("should throw error for invalid size string", () => {
       expect(() => c.getLetterPiece("z135ad")).toThrowError(
@@ -155,11 +155,11 @@ describe("Chess Utility Functions", () => {
 
   describe("getChessMove", () => {
     test("should return chess notation for board position", () => {
-      expect(c.getChessMove(56)).toBe("a1");
-      expect(c.getChessMove(7)).toBe("h8");
-      expect(c.getChessMove(0)).toBe("a8");
-      expect(c.getChessMove(27)).toBe("d5");
-      expect(c.getChessMove(63)).toBe("h1");
+      expect(c.getChessMove(56)).toEqual("a1");
+      expect(c.getChessMove(7)).toEqual("h8");
+      expect(c.getChessMove(0)).toEqual("a8");
+      expect(c.getChessMove(27)).toEqual("d5");
+      expect(c.getChessMove(63)).toEqual("h1");
     });
     test("should throw error for a square above 63", () => {
       expect(() => c.getChessMove(77)).toThrowError(
@@ -175,8 +175,8 @@ describe("Chess Utility Functions", () => {
 
   describe("fromChessMoveToPos", () => {
     test("should return board position from chess notation", () => {
-      expect(c.fromChessMoveToPos("a1")).toBe(0);
-      expect(c.fromChessMoveToPos("h8")).toBe(63);
+      expect(c.fromChessMoveToPos("a1")).toEqual(0);
+      expect(c.fromChessMoveToPos("h8")).toEqual(63);
     });
     test("should throw error for invalid notation", () => {
       expect(() => c.fromChessMoveToPos("a9")).toThrowError(
@@ -204,20 +204,20 @@ describe("Chess Utility Functions", () => {
 
   describe("Coordinate Helpers", () => {
     test("getX should return correct X position", () => {
-      expect(c.getX(0)).toBe(0);
-      expect(c.getX(15)).toBe(7);
+      expect(c.getX(0)).toEqual(0);
+      expect(c.getX(15)).toEqual(7);
     });
     test("getY should return correct Y position", () => {
-      expect(c.getY(0)).toBe(0);
-      expect(c.getY(63)).toBe(7);
+      expect(c.getY(0)).toEqual(0);
+      expect(c.getY(63)).toEqual(7);
     });
     test("getXY should return correct coordinates", () => {
       expect(c.getXY(0)).toEqual({ x: 0, y: 0 });
       expect(c.getXY(63)).toEqual({ x: 7, y: 7 });
     });
     test("getPlace should return correct board index for coordinates", () => {
-      expect(c.getPlace({ x: 0, y: 0 })).toBe(0);
-      expect(c.getPlace({ x: 7, y: 7 })).toBe(63);
+      expect(c.getPlace({ x: 0, y: 0 })).toEqual(0);
+      expect(c.getPlace({ x: 7, y: 7 })).toEqual(63);
     });
   });
 
@@ -350,7 +350,16 @@ describe("Chess Utility Functions", () => {
       });
     });
     describe("kingMoves should return moves including castling", () => {
-      test("should return no moves", () => {
+      test("should return no moves (checkmate)", () => {
+        const kingPos = { x: 1, y: 7 };
+        const danger = c.dangerArea(
+          true,
+          c.decodeBoard("8/8/8/8/8/1K6/8/1k4R1 b - - 0 1").board
+        );
+        const kingMoves = c.kingMoves(kingPos, false, [], false, false, danger);
+        expect(kingMoves).toEqual([]);
+      });
+      test("should return no moves (stalemate)", () => {
         const kingPos = { x: 5, y: 5 };
         const danger = c.dangerArea(
           true,

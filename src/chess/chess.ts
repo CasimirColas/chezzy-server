@@ -457,7 +457,7 @@ export function encodePosition(board: ChessBoard): string {
   let consecutiveEmpty = 0;
   for (let i = 0; i < board.length; i++) {
     const square = board[i];
-    // If there is a pice on the square
+    // If there is a piece on the square
     if (square !== null) {
       // If there were empty squares before the piece
       if (consecutiveEmpty > 0) {
@@ -479,6 +479,9 @@ export function encodePosition(board: ChessBoard): string {
       }
       code += "/";
     }
+  }
+  if (consecutiveEmpty > 0) {
+    code += consecutiveEmpty;
   }
   return code;
 }
