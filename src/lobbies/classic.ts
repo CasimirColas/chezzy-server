@@ -1,9 +1,83 @@
+import { decodeBoard } from "@/chess/chess.js";
+import {
+  ClassicGameEngine,
+  type ClassicServerGameRequest,
+} from "@/chess/classic.js";
 import type { NamespaceIO, SocketIO } from "@/types/socket.js";
 
-export interface ClassicRoom {
-  player1: string | undefined;
-  player2: string | undefined;
+export class ClassicRoom {
+  white: string | undefined;
+  black: string | undefined;
   spectators: string[];
+  ongoing: boolean;
+  game?: ClassicGameEngine;
+
+  constructor(player1: string) {
+    this.white = player1;
+    this.black = undefined;
+    this.spectators = [];
+    this.ongoing = false;
+  }
+
+  join(player: string) {
+    if (!this.white) {
+      this.white = player;
+    } else if (!this.black) {
+      this.black = player;
+    } else {
+      this.spectators.push(player);
+    }
+  }
+
+  leave(player: string) {
+    if (this.white === player) {
+      this.white = undefined;
+    } else if (this.black === player) {
+      this.black = undefined;
+    } else {
+      const index = this.spectators.indexOf(player);
+      if (index !== -1) {
+        this.spectators.splice(index, 1);
+      }
+    }
+  }
+
+  swapColors() {
+    [this.white, this.black] = [this.black, this.white];
+  }
+
+  startGame(startingFen?: string) {
+    if (startingFen) {
+      try {
+        const game = decodeBoard(startingFen);
+        this.game = new ClassicGameEngine(game);
+      } catch (error) {
+        throw new Error("Invalid FEN, cause: " + error);
+      }
+    } else {
+      this.game = new ClassicGameEngine();
+    }
+    this.ongoing = true;
+  }
+
+  makeMove(player: string, req: ClassicServerGameRequest) {
+    if (!this.game) {
+      throw new Error("Game not started");
+    }
+    const game = this.game.info().game;
+    if ((this.white === player) === game.whiteToPlay) {
+      this.game.request(req);
+    } else {
+      throw new Error("Not your turn");
+    }
+  }
+
+  gameInfo() {
+    if (!this.game) {
+      throw new Error("Game not started");
+    }
+    return this.game.info();
+  }
 }
 
 export interface ClassicLobby {
@@ -26,6 +100,8 @@ function classicLobby(io: NamespaceIO) {
     socket.onAny(() => {
       console.log(rooms);
     });
+
+    socket.on("disconnect", () => {});
   });
 
   function joinRoom(socket: SocketIO, roomId: string) {
@@ -34,8 +110,8 @@ function classicLobby(io: NamespaceIO) {
 
     // Check if a user wants to join an existing room or creates and joins a new room
     if (roomsIds.includes(roomId)) {
-      const { spectators, player1, player2 } = rooms[roomId];
-      const users = [...spectators, player1, player2].filter(
+      const { spectators, white, black } = rooms[roomId];
+      const users = [...spectators, white, black].filter(
         (i) => i !== undefined
       );
       // Checks if the user is already in the room
@@ -49,28 +125,10 @@ function classicLobby(io: NamespaceIO) {
       // User joins the room
       socket.join(roomId);
       // Asignment of the player to an available spot or spectator
-      // User joined slot 1
-      if (!rooms[roomId].player1) {
-        rooms[roomId].player1 = socket.id;
-        io.to(roomId).emit("roomUpdate", rooms[roomId]);
-        return;
-      }
-      // User joined slot 2
-      if (!rooms[roomId].player2) {
-        rooms[roomId].player2 = socket.id;
-        io.to(roomId).emit("roomUpdate", rooms[roomId]);
-        return;
-      }
-      // User joined the spectators
-      rooms[roomId].spectators.push(socket.id);
-      io.to(roomId).emit("roomUpdate", rooms[roomId]);
+      rooms[roomId].join(socket.id);
     } else {
       // User creates and joins a new room
-      rooms[roomId] = {
-        player1: socket.id,
-        player2: undefined,
-        spectators: [],
-      };
+      rooms[roomId] = new ClassicRoom(socket.id);
       socket.join(roomId);
     }
     io.to(roomId).emit("roomUpdate", rooms[roomId]);
@@ -88,18 +146,12 @@ function classicLobby(io: NamespaceIO) {
     // User leaves the room
     socket.leave(roomId);
     // Removing the user from the rooms state
-    if (rooms[roomId].player1 === socket.id) {
-      rooms[roomId].player1 = undefined;
-    }
-    if (rooms[roomId].player2 === socket.id) {
-      rooms[roomId].player2 = undefined;
-    }
-    const index = rooms[roomId].spectators.indexOf(socket.id);
-    if (index !== -1) {
-      rooms[roomId].spectators.splice(index, 1);
-    }
+    rooms[roomId].leave(socket.id);
+
     io.to(roomId).emit("roomUpdate", rooms[roomId]);
   }
+
+  function makeMove() {}
 }
 
 export default classicLobby;

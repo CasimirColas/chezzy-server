@@ -30,7 +30,7 @@ type Moves = { [key: number]: number[] };
  * - null: Game is still ongoing
  */
 type GameState = 0 | 1 | 2 | null;
-interface ClassicServerGameRequest {
+export interface ClassicServerGameRequest {
   // Square where the piece to move is located
   pieceToMove: number;
   // Square where the piece should be moved
@@ -38,7 +38,7 @@ interface ClassicServerGameRequest {
   // If the move is a promotion indicates the requested piece
   promotion?: "q" | "r" | "b" | "n";
 }
-interface ClassicServerGameResponse {
+export interface ClassicServerGameResponse {
   // FEN notation of the new board
   board: string;
   moves: Moves;

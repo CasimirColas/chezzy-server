@@ -3,6 +3,9 @@ import { Hono } from "hono";
 import { Server } from "socket.io";
 import classicLobby from "./lobbies/classic.js";
 import doubleLobby from "./lobbies/double.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = new Hono();
 
@@ -19,7 +22,20 @@ app.get("/", (c) => {
   return c.text("Hello Hono!");
 });
 
-const io = new Server(server);
+const origin = process.env.CORS_ORIGIN;
+
+const io = new Server(
+  server,
+  origin
+    ? {
+        cors: {
+          origin: origin,
+          methods: ["GET", "POST"],
+          credentials: true,
+        },
+      }
+    : undefined
+);
 classicLobby(io.of("/classic"));
 doubleLobby(io.of("/double"));
 
