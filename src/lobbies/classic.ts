@@ -101,7 +101,18 @@ function classicLobby(io: NamespaceIO) {
       console.log(rooms);
     });
 
-    socket.on("disconnect", () => {});
+    socket.on("disconnect", () => {
+      const roomsIds = Object.keys(rooms).filter((roomId) =>
+        [
+          ...rooms[roomId].spectators,
+          rooms[roomId].white,
+          rooms[roomId].black,
+        ].includes(socket.id)
+      );
+      for (const roomId of roomsIds) {
+        leaveRoom(socket, roomId);
+      }
+    });
   });
 
   function joinRoom(socket: SocketIO, roomId: string) {
